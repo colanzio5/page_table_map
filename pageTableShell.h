@@ -9,6 +9,6 @@
 // tFlag (bool - flag to stdout the address mappings as added to table)
 std::tuple<int, std::string, bool, int> parseSimulationArguments(int argc, char **argv);
 
-int runSimulation();
+int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int> args);
 
 #endif // PAGE_TABLE_SHELL

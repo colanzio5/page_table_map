@@ -61,10 +61,16 @@ std::tuple<int, std::string, bool, int> parseSimulationArguments(int argc, char 
     return std::make_tuple(nFlag, pFlag, tFlag, numberLevels);
 }
 
-int runSimulation()
+// tuple contents
+// nFlag (int - process only the first N memory requests)
+// pFlag (FILE - the file path to print the sim results to)
+// tFlag (bool - flag to stdout the address mappings as added to table)
+// number of levels in page tree sim
+int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int> args)
 {
     FILE *ifp;	        /* trace file */
     unsigned long i = 0;  /* instructions processed */
+    char *tracePath = argv[argc - (int)(std::get<3>(args)) -1];
     p2AddrTr trace;	/* traced address */
 
     /* attempt to open trace file */
