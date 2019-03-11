@@ -8,7 +8,7 @@
 #include <iostream>
 #include "helpers.h"
 
-int main(int argc, char **argv)
+int main()
 {
     std::cout << "Starting Page Table Simulation\n";
     std::cout << "Total Addresses: " << runSimulation("./trace/trace.sample.tr") << "\n";

@@ -1,21 +1,48 @@
-CC=g++ # define the compiler to use
-TARGET=pagetable # define the name of the executable
-SOURCES=main.cpp helpers.cpp byutr.c
-CFLAGS=-O3 
-LFLAGS=
+# colin casazza
+# cs570 - operating systems
+# page table simulation program makefile
+# template from http://www.partow.net/programming/makefile/index.html
 
-# define list of objects
-OBJSC=$(SOURCES:.c=.o)
-OBJS=$(OBJSC:.cpp=.o)
+# MAKEFILE CONFIGURATION AND DIRECTORY STRUCTURE
+# ----------------------------------------------
+CXX      := -g++
+CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror
+LDFLAGS  := -L/usr/lib -lstdc++ -lm
+BUILD    := ./build
+OBJ_DIR  := $(BUILD)/objects
+APP_DIR  := $(BUILD)/apps
+TARGET   := pagetable
+INCLUDE  := -Iinclude/
+SRC      :=                      	\
+	$(wildcard src/pageTable/*.cpp) \
+	$(wildcard src/*.cpp)         	\
 
-# the target is obtained linking all .o files
-all: $(SOURCES) $(TARGET)
+# DO NOT EDIT ANY OF THE FOLLOWING LINES
+# --------------------------------------
+OBJECTS := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
 
-$(TARGET): $(OBJS)
-	$(CC) $(LFLAGS) $(OBJS) -o $(TARGET)
+all: build $(APP_DIR)/$(TARGET)
 
-purge: clean
-	rm -f $(TARGET)
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ -c $<
+
+$(APP_DIR)/$(TARGET): $(OBJECTS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $(LDFLAGS) -o $(APP_DIR)/$(TARGET) $(OBJECTS)
+
+.PHONY: all build clean debug release
+
+build:
+	@mkdir -p $(APP_DIR)
+	@mkdir -p $(OBJ_DIR)
+
+debug: CXXFLAGS += -DDEBUG -g
+debug: all
+
+release: CXXFLAGS += -O2
+release: all
 
 clean:
-	rm -f *.o
+	-@rm -rvf $(OBJ_DIR)/*
+	-@rm -rvf $(APP_DIR)/*

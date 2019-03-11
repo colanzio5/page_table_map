@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-
 #include "byutr.h"
 
 int runSimulation(const char *tracePath) 
