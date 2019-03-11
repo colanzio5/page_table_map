@@ -1,12 +1,13 @@
+#include <stdint.h>
 
 typedef struct BYUADDRESSTRACE
 {
-	unsigned long addr;
-	unsigned char reqtype;
-	unsigned char size;
-	unsigned char attr;
-	unsigned char proc;
-	unsigned long time;
+  uint32_t addr;
+  unsigned char reqtype;
+  unsigned char size;
+  unsigned char attr;
+  unsigned char proc;
+  uint32_t time;
 } p2AddrTr;
 
 typedef enum {
