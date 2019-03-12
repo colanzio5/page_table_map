@@ -1,49 +1,49 @@
 #ifndef PAGE_TABLE
 #define PAGE_TABLE
 
-#include <tuple>
 #define ADDRESS_LENGTH 32
 
+typedef struct PAGETABLE {
+    struct LEVEL *root;
+    int numLevels;
+    int numFrames;
+    int hits;
+    int misses;
+    u_int32_t *mask;
+    int *shift;
+    int *entries;
 
-class PageTable {
+} PAGETABLE;
 
+typedef struct MAP {        //leaf node structre
+    bool valid;
+    u_int32_t frame;
+} MAP;
 
-    public: 
-        struct Level *root;
-        int levels;
-        int frameCount;
-        int bitsUsed;
-        int hits;
-        int misses;
-        uint32_t *bitMask;
-        uint32_t *entries;
-        int *shift;
+typedef struct LEVEL {      //interior LEVEL structure
+    bool isLeaf;
+    struct PAGETABLE *pageTable;
+    struct LEVEL **nextLevel;
+    struct MAP *map;
+    int depth;
+} LEVEL;
 
-        PageTable(int levels, int levelsArgsIndex, char **argv);
-        int getEntriesAtDepth(int depth);
-        int getLevels();
-};
+u_int32_t calcBitmask(int start, int length);
 
-class Level {
+u_int32_t logicalToPage(u_int32_t logicalAddress, u_int32_t bitmask, u_int32_t shift);
 
-    public: 
-        bool isLeafNode;
-        struct PageTable *pageTable;
-        struct Level **nextLevel;
-        struct FrameMap *frame;
-        int depth;
+int initPageTable(char **argv, int argvOffset, PAGETABLE *pageTable);
 
-        Level(PageTable pageTable, Level *root, int level);
-            
-};
+LEVEL * initLevel(PAGETABLE *pageTable, LEVEL *level, int depth);
 
-typedef struct FrameMap {        //leaf node structre
-    bool isValid;
-    uint32_t frame;
-} FrameMap;
+void pageInsert(PAGETABLE *pageTable, u_int32_t logicalAddress, u_int32_t frame);
 
+void pageInsertHelper(LEVEL *level, u_int32_t logicalAddress, u_int32_t frame);
 
-/*generates a bitmask of specified length 'length', and starting at the specified bit 'start'*/
-unsigned int calcBitmask(int start, int length);
+MAP *pageLookup(PAGETABLE *pageTable, u_int32_t logicalAddress);
+
+MAP *searchLevel(LEVEL *level, unsigned int logicalAddress);
+
+void printTableInfo(PAGETABLE *pageTable);
 
 #endif // PAGE_TABLE

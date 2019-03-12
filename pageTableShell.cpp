@@ -71,13 +71,13 @@ std::tuple<int, std::string, bool, int, int> parseSimulationArguments(int argc, 
 // level size offset
 int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int, int> args)
 {
-    FILE *ifp;	        /* trace file */
-    unsigned long i = 0;  /* instructions processed */
-    char *tracePath = argv[argc - (int)(std::get<3>(args)) -1];
-    p2AddrTr trace;	/* traced address */
+    FILE *traceFile;
+    unsigned long i = 0;
+    char *tracePath = argv[argc - (int)(std::get<3>(args)) - 1];
+    p2AddrTr trace;
 
     /* attempt to open trace file */
-    if ((ifp = fopen("trace.sample.tr", "rb")) == NULL)
+    if ((traceFile = fopen("trace.sample.tr", "rb")) == NULL)
     {
         fprintf(stderr, "cannot open %s for reading\n", "trace.sample.tr");
         exit(1);
@@ -86,24 +86,43 @@ int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int,
     /**
      * initialize the page table given the input paramaters
      */
-    int levels = (int)std::get<3>(args);
-    int offset = (int)std::get<4>(args);
-    PageTable pageTable = PageTable(levels, offset, argv);
-
+    PAGETABLE *pageTable = (PAGETABLE *)calloc(1, sizeof(PAGETABLE));
+    (*pageTable).numLevels = std::get<3>(args);
+    int offsetBits = ADDRESS_LENGTH - initPageTable(argv, std::get<4>(args), pageTable);
 
     /**
      * using NextAddress() iterate through the trace file
      * for each address in the trace file, do a pageTable lookup
      * mark hits and misses, and add if doesn't exist
      */
-    while (!feof(ifp))
+    while (!feof(traceFile))
     {
         /* get next address and process */
-        if (NextAddress(ifp, &trace))
+        if (NextAddress(traceFile, &trace))
         {
             uint32_t address = (uint32_t)trace.addr;
+
+            if (NextAddress(traceFile, &trace))
+            {
+                u_int32_t address = (u_int32_t)trace.addr;
+                if (pageLookup(pageTable, address) == NULL)
+                {
+                    pageInsert(pageTable, address, (*pageTable).numFrames);
+                    (*pageTable).misses++;
+                }
+                else
+                {
+                    (*pageTable).hits++;
+                }
+            }
             i++;
         }
     }
+    int hitPercent = (float)pageTable->hits/(float)i * 100;
+    int missPercent = (float)pageTable->misses/(float)i * 100;
+    printf("\nAddresses Processed: %lu\n", i);
+    printf("Hits: %i (%i percent)\n", pageTable->hits, hitPercent);
+    printf("Misses: %i (%i percent)\n", pageTable->misses, missPercent);
+    printTableInfo(pageTable);
     return i;
 }

@@ -18,12 +18,12 @@ int main(int argc, char **argv)
 
     std::tuple<int, std::string, bool, int, int> args = parseSimulationArguments(argc, argv);
 
-    // !remove before submission
-    std::cout << "first n entries to process    : " << std::get<0>(args) << "\n";
-    std::cout << "file to print to              : " << std::get<1>(args) << "\n";
-    std::cout << "show sim in console?          : " << (bool)std::get<2>(args) << "\n";
-    std::cout << "number of levels              : " << std::get<3>(args) << "\n";
+    // // !remove before submission
+    // std::cout << "first n entries to process    : " << std::get<0>(args) << "\n";
+    // std::cout << "file to print to              : " << std::get<1>(args) << "\n";
+    // std::cout << "show sim in console?          : " << (bool)std::get<2>(args) << "\n";
+    // std::cout << "number of levels              : " << std::get<3>(args) << "\n";
     
-    std::cout << "Total Addresses: " << runSimulation(argc, argv, args) << "\n";
+    runSimulation(argc, argv, args);
     return 0;
 }
