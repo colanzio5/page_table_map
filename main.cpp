@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     std::cout << "Starting Page Table Simulation\n";
     std::cout << std::boolalpha;
 
-    std::tuple<int, std::string, bool, int> args = parseSimulationArguments(argc, argv);
+    std::tuple<int, std::string, bool, int, int> args = parseSimulationArguments(argc, argv);
 
     // !remove before submission
     std::cout << "first n entries to process    : " << std::get<0>(args) << "\n";

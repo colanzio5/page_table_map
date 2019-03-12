@@ -1,6 +1,6 @@
 CC=g++ # define the compiler to use
 TARGET=pagetable # define the name of the executable
-SOURCES=main.cpp pageTableShell.cpp byutr.c
+SOURCES=main.cpp pageTableShell.cpp pageTable.cpp byutr.c
 CFLAGS=-O3
 LFLAGS=
 

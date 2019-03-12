@@ -5,14 +5,16 @@
 #include <tuple>
 #include <string.h>
 
+#include "pageTable.h"
 #include "byutr.h"
 
 // tuple contents
 // nFlag (int - process only the first N memory requests)
-// pFlag (FILE - the file path to print the sim results to)
+// pFlag (FILE - the file to print the sim results to)
 // tFlag (bool - flag to stdout the address mappings as added to table)
-// number of levels in page tree sim
-std::tuple<int, std::string, bool, int> parseSimulationArguments(int argc, char **argv)
+// number of levels,
+// offset of the level size array in argv
+std::tuple<int, std::string, bool, int, int> parseSimulationArguments(int argc, char **argv)
 {
     int numberLevels = argc - 2;
     std::string pFlag = "NONE";
@@ -58,7 +60,7 @@ std::tuple<int, std::string, bool, int> parseSimulationArguments(int argc, char 
             break;
         }
     }
-    return std::make_tuple(nFlag, pFlag, tFlag, numberLevels);
+    return std::make_tuple(nFlag, pFlag, tFlag, numberLevels, argc - numberLevels);
 }
 
 // tuple contents
@@ -66,7 +68,8 @@ std::tuple<int, std::string, bool, int> parseSimulationArguments(int argc, char 
 // pFlag (FILE - the file path to print the sim results to)
 // tFlag (bool - flag to stdout the address mappings as added to table)
 // number of levels in page tree sim
-int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int> args)
+// level size offset
+int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int, int> args)
 {
     FILE *ifp;	        /* trace file */
     unsigned long i = 0;  /* instructions processed */
@@ -80,11 +83,25 @@ int runSimulation(int argc, char **argv, std::tuple<int, std::string, bool, int>
         exit(1);
     }
 
+    /**
+     * initialize the page table given the input paramaters
+     */
+    int levels = (int)std::get<3>(args);
+    int offset = (int)std::get<4>(args);
+    PageTable pageTable = PageTable(levels, offset, argv);
+
+
+    /**
+     * using NextAddress() iterate through the trace file
+     * for each address in the trace file, do a pageTable lookup
+     * mark hits and misses, and add if doesn't exist
+     */
     while (!feof(ifp))
     {
         /* get next address and process */
         if (NextAddress(ifp, &trace))
         {
+            uint32_t address = (uint32_t)trace.addr;
             i++;
         }
     }
